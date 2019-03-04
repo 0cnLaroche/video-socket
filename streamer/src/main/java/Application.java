@@ -1,19 +1,31 @@
-
+import java.io.*;
 
 public class Application {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
-		CaptureVideo cv = new CaptureVideo();
-		
-		Stream streamer = new Stream(cv);
-		
-		streamer.start();
-		
+		DummyServer server = new DummyServer();
+		server.start();
+
+		/*Stream stream = new Stream();
+		stream.start();*/
+
+		// Exemple avec piping
+		PipedOutputStream pout = new PipedOutputStream();
+		DataOutputStream output = new DataOutputStream(pout);
+
+		PipedInputStream pin = new PipedInputStream();
+		DataInputStream input = new DataInputStream(pin);
+
+		pin.connect(pout);
+
+		CaptureVideo cv = new CaptureVideo(output);
+
+
+		//CaptureVideo cv = new CaptureVideo(stream.out);
 		cv.start();
-		cv.mirror();
-		
-		
+		VideoReader vr = new VideoReader(input, 1);
+		vr.view();
 
 	}
 

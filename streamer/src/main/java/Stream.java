@@ -1,4 +1,3 @@
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -6,9 +5,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-
-import com.github.sarxos.webcam.Webcam;
 
 public class Stream extends Thread {
 
@@ -20,14 +16,15 @@ public class Stream extends Thread {
 	DataOutputStream out;
 	BufferedReader in;
 	
-	public Stream(CaptureVideo cv) {
-		this.cv = cv;
+	public Stream() {
 	}
 	
 	public void run() {
 		
 		try {
 			Socket socket = new Socket(HOST, PORT);
+			
+			System.out.println("Connecté au serveur");
 			
 			String fromServer;
 			
@@ -36,20 +33,15 @@ public class Stream extends Thread {
 			
 			this.out = new DataOutputStream(socket.getOutputStream());
 			
-			new OutputStreamWriter(socket.getOutputStream());
-	
-			
 			while ((fromServer = in.readLine()) != null) {
 			    System.out.println("Server: " + fromServer);
 			    if (fromServer.equals("Bye."))
 			        break;
-				if(cv.getBuffer() != null) {
-					out.write(cv.getBuffer().array());
-				}
 			    
 			}
 			
 		} catch (UnknownHostException e) {
+			System.err.println("La connection a chié");
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
