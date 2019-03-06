@@ -16,10 +16,12 @@ public class Application {
 
 		// Exemple avec piping
 		PipedOutputStream pout = new PipedOutputStream();
-		DataOutputStream output = new DataOutputStream(pout);
+		BufferedOutputStream output = new BufferedOutputStream(pout);
+		// DataOutputStream output = new DataOutputStream(pout);
 
 		PipedInputStream pin = new PipedInputStream();
-		DataInputStream input = new DataInputStream(pin);
+		BufferedInputStream input = new BufferedInputStream(pin);
+		// DataInputStream input = new DataInputStream(pin);
 
 		pin.connect(pout);
 

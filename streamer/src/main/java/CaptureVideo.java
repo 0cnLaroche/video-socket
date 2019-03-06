@@ -8,7 +8,7 @@ public class CaptureVideo extends Thread {
 
 	private static final int FPS = 10; // Frame Per Second
 	private ByteBuffer buffer;
-	private DataOutputStream out;
+	private BufferedOutputStream out;
 	private boolean paused;
 	private VideoCapture vc;
 	private int sequence = 0;
@@ -17,7 +17,7 @@ public class CaptureVideo extends Thread {
 		nu.pattern.OpenCV.loadShared();
 	}
 	
-	public CaptureVideo(DataOutputStream out) throws Exception {
+	public CaptureVideo(BufferedOutputStream out) throws Exception {
 		vc = new VideoCapture();
 		this.out = out;
 	}
@@ -27,16 +27,8 @@ public class CaptureVideo extends Thread {
 	}
 	
 	public void run() {
-		
-		try {
-			capture(out);
-		} catch (IOException e) {
 
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
-		}
+		capture(out);
 	}
 	
 	public ByteBuffer getBuffer() {
@@ -61,33 +53,42 @@ public class CaptureVideo extends Thread {
 	 * @throws InterruptedException
 	 */
 	
-	private synchronized void capture(DataOutputStream out) throws IOException, InterruptedException {
+	private synchronized void capture(BufferedOutputStream out) {
 		
 		// Créer une instance de la webcam par defaut
-
-        ObjectOutputStream oos = new ObjectOutputStream(out);
 
 		// Ouvrir la camera par defaut
 		vc.open(0);
 
 		System.out.println("Débute la capture vidéo à partir de la caméra par défaut");
         
-        while(vc.isOpened()) {
 
-        	Mat mat = new Mat();
-        	// Prend une capture d'écran
-			vc.read(mat);
-			// Créer un vecteur d'octets correspondant à la grandeur de l'image. 1 octet par pixel * channels (couleurs + gris)
-        	byte[] raw = new byte[(int)mat.total() * mat.channels()];
-        	// Aller chercher les octets et les placer dans le vecteur
-        	mat.get(0,0,raw);
-        	// Créer un objet Serializable qui sera envoyé au serveur
-        	SerializableImage img = new SerializableImage(raw, mat.width(), mat.height(), mat.channels(), this.sequence);
-			this.sequence++;
-			oos.writeObject(img);
+        	try(ObjectOutputStream oos = new ObjectOutputStream(out)) {
 
-        	Thread.sleep(1000/FPS);
-        }
+				while(vc.isOpened()) {
+
+					Mat mat = new Mat();
+					// Prend une capture d'écran
+					vc.read(mat);
+					// Créer un vecteur d'octets correspondant à la grandeur de l'image. 1 octet par pixel * channels (couleurs + gris)
+					byte[] raw = new byte[(int) mat.total() * mat.channels()];
+					// Aller chercher les octets et les placer dans le vecteur
+					mat.get(0, 0, raw);
+					// Créer un objet Serializable qui sera envoyé au serveur
+					SerializableImage img = new SerializableImage(raw, mat.width(), mat.height(), mat.channels(), this.sequence);
+					this.sequence++;
+					oos.writeObject(img);
+					oos.reset();
+
+					Thread.sleep(1000 / FPS);
+
+				}
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
         System.out.println("Capture Vidéo terminé \nFrames envoyés: " + this.sequence);
 

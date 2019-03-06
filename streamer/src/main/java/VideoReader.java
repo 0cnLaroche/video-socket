@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,12 +26,10 @@ public class VideoReader extends JFrame {
      */
 
 
-    public VideoReader(DataInputStream in) throws IOException {
+    public VideoReader(BufferedInputStream in) throws IOException {
 
         this.queue = new PriorityQueue<SerializableImage>(CAPACITY);
         this.converter = new ImageConverter();
-
-        ObjectInputStream ois = new ObjectInputStream(in);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(0, 0, 1280, 720);
@@ -44,7 +43,7 @@ public class VideoReader extends JFrame {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
+                try(ObjectInputStream ois = new ObjectInputStream(in)) {
                     SerializableImage img;
 
                     while (true) {
