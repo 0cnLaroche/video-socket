@@ -4,6 +4,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 
+/**
+ * Convertis un objet SerializableImage (généré par le Streamer et reçu pas le Viewer) en BufferedImage qui pourra
+ * être affiché à l'écran par Java Swing.
+ */
+
 public class ImageConverter {
 
     static{

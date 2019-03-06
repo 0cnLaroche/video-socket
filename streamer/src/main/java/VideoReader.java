@@ -1,36 +1,34 @@
-
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.PriorityQueue;
+// Pas certain si fait une différence d'utilisé un BlockingQueue ou non.
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class VideoReader extends JFrame {
 
     private static final int CAPACITY = 10;
+    private static final int FPS = 10;
     private JPanel contentPane;
-
-    private PriorityBlockingQueue<SerializableImage> queue;
-
-    private double gamma;
-
+    private PriorityQueue<SerializableImage> queue;
     private ImageConverter converter;
+    private boolean paused;
+
+    /**
+     * Reçois un stream de données, convertie en images, place dans le bon ordre et affiche à l'écran
+     * @param in
+     * @throws IOException
+     */
 
 
-    public VideoReader(DataInputStream in, double gamma) throws IOException {
+    public VideoReader(DataInputStream in) throws IOException {
 
-        this.queue = new PriorityBlockingQueue<SerializableImage>(CAPACITY);
+        this.queue = new PriorityQueue<SerializableImage>(CAPACITY);
         this.converter = new ImageConverter();
-        this.gamma = gamma;
 
         ObjectInputStream ois = new ObjectInputStream(in);
 
@@ -51,16 +49,16 @@ public class VideoReader extends JFrame {
 
                     while (true) {
                         if ((img = (SerializableImage) ois.readObject()) != null) {
-
+                            // Si la file est pleine, on jete la prochaine image qui devait être lue
+                            // pour ne pas créer de délais
                             if (queue.size() >= CAPACITY) {
                                 queue.poll();
                             }
 
-                            queue.put(img);
-
+                            // queue.put(img);
+                            queue.add(img);
 
                         }
-
 
                     }
 
@@ -96,11 +94,11 @@ public class VideoReader extends JFrame {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                while(!paused) {
 
                     repaint();
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(1000/FPS);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -110,6 +108,14 @@ public class VideoReader extends JFrame {
             }
         }).start();
 
+    }
+
+    public synchronized void pause() {
+        this.paused = true;
+    }
+
+    public synchronized void resume() {
+        this.paused = false;
     }
 
 }

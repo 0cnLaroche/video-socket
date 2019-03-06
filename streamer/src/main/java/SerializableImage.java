@@ -3,7 +3,7 @@
 import java.io.Serializable;
 
 /**
- * Classe image qui sera utilisé par les clients. Doit être Serializable pour utilisé un ObjectOutputStream et
+ * Classe image qui sera utilisé par les clients. Doit être Serializable pour utiliser un ObjectOutputStream et
  * ObjectInputStream.
  * @author samuel
  */
@@ -27,6 +27,8 @@ public class SerializableImage implements Serializable, Comparable<SerializableI
         this.channels = channels;
         this.sequence = sequence;
     }
+
+    public SerializableImage() { }
 
     public int compareTo(SerializableImage o) {
         return ((int)this.sequence - o.sequence);

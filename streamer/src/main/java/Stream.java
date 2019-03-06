@@ -15,11 +15,16 @@ public class Stream extends Thread {
 	
 	DataOutputStream out;
 	BufferedReader in;
-	
+
+	/**
+	 * Se connecte au serveur et envois un stream d'images.
+	 */
 	public Stream() {
 	}
 	
 	public void run() {
+
+		// TODO: Implémenter un protocol
 		
 		try {
 			Socket socket = new Socket(HOST, PORT);

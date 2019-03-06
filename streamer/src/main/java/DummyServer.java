@@ -6,10 +6,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
+/**
+ * Serveur Dummy utilisé pour testing seulement
+ */
+
 public class DummyServer extends Thread {
-	
-	
-	
+
 	public void run() {
 		
 		try ( 
