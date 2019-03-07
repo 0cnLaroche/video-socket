@@ -3,7 +3,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.PriorityQueue;
@@ -13,7 +12,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class VideoReader extends JFrame {
 
     private static final int CAPACITY = 10;
-    private static final int FPS = 10;
+    private static final int FPS = 30;
+    private int width;
+    private int height;
     private JPanel contentPane;
     private PriorityQueue<SerializableImage> queue;
     private ImageConverter converter;
@@ -30,9 +31,11 @@ public class VideoReader extends JFrame {
 
         this.queue = new PriorityQueue<SerializableImage>(CAPACITY);
         this.converter = new ImageConverter();
+        this.width = 1280;
+        this.height = 720;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(0, 0, 1280, 720);
+        setBounds(0, 0, width, height);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
         setContentPane(contentPane);
@@ -48,6 +51,7 @@ public class VideoReader extends JFrame {
 
                     while (true) {
                         if ((img = (SerializableImage) ois.readObject()) != null) {
+
                             // Si la file est pleine, on jete la prochaine image qui devait être lue
                             // pour ne pas créer de délais
                             if (queue.size() >= CAPACITY) {
@@ -117,4 +121,21 @@ public class VideoReader extends JFrame {
         this.paused = false;
     }
 
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
 }

@@ -6,7 +6,7 @@ import org.opencv.videoio.VideoCapture;
 
 public class CaptureVideo extends Thread {
 
-	private static final int FPS = 10; // Frame Per Second
+	private static final int FPS = 30; // Frame Per Second
 	private ByteBuffer buffer;
 	private BufferedOutputStream out;
 	private boolean paused;
