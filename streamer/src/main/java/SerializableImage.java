@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class SerializableImage implements Serializable, Comparable<SerializableImage> {
 
     private static final long serialVersionUID = 7040956247022451242L;
-    //private transient final IplImage img;
+    // en pause si raw vide
     private byte[] raw;
     private int width;
     private int height;

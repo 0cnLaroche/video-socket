@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
@@ -68,12 +69,16 @@ public class CaptureVideo extends Thread {
 				while(vc.isOpened()) {
 
 					Mat mat = new Mat();
+
 					// Prend une capture d'écran
 					vc.read(mat);
+
 					// Créer un vecteur d'octets correspondant à la grandeur de l'image. 1 octet par pixel * channels (couleurs + gris)
 					byte[] raw = new byte[(int) mat.total() * mat.channels()];
+
 					// Aller chercher les octets et les placer dans le vecteur
 					mat.get(0, 0, raw);
+
 					// Créer un objet Serializable qui sera envoyé au serveur
 					SerializableImage img = new SerializableImage(raw, mat.width(), mat.height(), mat.channels(), this.sequence);
 					this.sequence++;
