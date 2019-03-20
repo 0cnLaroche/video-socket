@@ -1,4 +1,9 @@
+package streamer;
 import java.io.*;
+import java.net.URI;
+import java.net.URL;
+
+import viewer.VideoReader;
 
 /**
  * Classe qui lance le programme
@@ -7,21 +12,23 @@ import java.io.*;
 public class Application {
 
 	public static void main(String[] args) throws Exception {
-		
+		// NOTE
+		// Le host + p
 		DummyServer server = new DummyServer();
 		server.start();
 
-		/*Stream stream = new Stream();
-		stream.start();*/
+		URI url = new URI("blank://" + args[0]);
+
+		Stream stream = new Stream(url.getHost(), url.getPort());
+		stream.connect();
+
 
 		// Exemple avec piping
 		PipedOutputStream pout = new PipedOutputStream();
 		BufferedOutputStream output = new BufferedOutputStream(pout);
-		// DataOutputStream output = new DataOutputStream(pout);
 
 		PipedInputStream pin = new PipedInputStream();
 		BufferedInputStream input = new BufferedInputStream(pin);
-		// DataInputStream input = new DataInputStream(pin);
 
 		pin.connect(pout);
 

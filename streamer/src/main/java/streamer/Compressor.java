@@ -1,3 +1,4 @@
+package streamer;
 import org.opencv.core.Mat;
 
 public class Compressor {

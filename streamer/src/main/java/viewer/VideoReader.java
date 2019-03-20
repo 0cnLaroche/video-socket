@@ -1,5 +1,10 @@
+package viewer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import streamer.ImageConverter;
+import streamer.SerializableImage;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;

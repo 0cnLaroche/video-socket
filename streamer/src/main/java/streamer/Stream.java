@@ -1,13 +1,12 @@
+package streamer;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Stream {
 
-	private static final String HOST = "localhost";
-	private static final int PORT = 8080;
-	
-	private CaptureVideo cv;
+	private String HOST = "localhost";
+	private int PORT = 8080;
 	
 	BufferedOutputStream out;
 	BufferedReader in;
@@ -17,9 +16,9 @@ public class Stream {
 	/**
 	 * Se connecte au serveur et envois un stream d'images.
 	 */
-	public Stream() {
-
-
+	public Stream(String host, int port) {
+		this.HOST = host;
+		this.PORT = port;
 	}
 
 	public void connect() {
@@ -75,5 +74,12 @@ public class Stream {
 
 	}
 
+	/**
+	 * Sets the outputStream. In this project that would come from the VideoCapture Module
+	 * @param out
+	 */
 
+	public void setOutput(BufferedOutputStream out) {
+		this.out = out;
+	}
 }
