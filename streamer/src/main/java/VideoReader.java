@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -82,6 +84,10 @@ public class VideoReader extends JFrame {
         if(queue.peek() != null) {
 
             BufferedImage img = converter.getImage(queue.poll());
+            AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+            tx.translate(-img.getWidth(null), 0);
+            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            img = op.filter(img, null);
             g = contentPane.getGraphics();
             g.drawImage(img, 0, 0, this);
 
