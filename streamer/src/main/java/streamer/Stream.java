@@ -3,63 +3,46 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+
 public class Stream {
 
 	private String HOST = "localhost";
 	private int PORT = 8080;
 	
-	BufferedOutputStream out;
-	BufferedReader in;
+	DataOutputStream out;
+	DataInputStream in;
 	Socket socket;
-	String sessionName;
+	
+    private String streamerName;
+    public static Stream streamer = null;
+
 
 	/**
 	 * Se connecte au serveur et envois un stream d'images.
 	 */
-	public Stream(String host, int port) {
-		this.HOST = host;
-		this.PORT = port;
+	
+	public Stream() {
+		
 	}
 
-	public void connect() {
+	
+    /**
+     * Cette méthode initialise la connection avec le serveur
+     *
+     * @param serverIP - soit l'adresse IP du serveur
+     * @param port - soit le port utilisé par le serveur
+     * @throws IOException
+     */
+    public void initConnection(String serverIP, int port) throws IOException {
+        Socket socket = new Socket(serverIP, port);
+        
+        HOST = serverIP;
+        PORT = port;
 
-		String fromServer;
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
 
-		try {
-			socket = new Socket(HOST, PORT);
-
-			System.out.println("[STREAMER]: Connecté au serveur");
-
-			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			this.out = new BufferedOutputStream(socket.getOutputStream());
-
-			PrintWriter pr = new PrintWriter(out);
-
-			// Envoyé le nom du host de la session
-			pr.write("session:" + sessionName);
-
-			if ((fromServer = in.readLine()) != sessionName + ":OK") {
-				pr.write("Bye.");
-				this.close();
-				throw new IOException("Pas de confirmation reçu du serveur pour la session " + sessionName);
-			}
-			System.out.println("[STREAMER]: Session établie avec le serveur. Nom de session : " + sessionName);
-
-			while ((fromServer = in.readLine()) != null) {
-				System.out.println(fromServer);
-				if (fromServer.equals("Bye."))
-					break;
-			}
-			this.close();
-
-
-		} catch (IOException e) {
-			System.err.println("Echec de la connection avec le serveur à " + HOST + ":" + PORT);
-			e.printStackTrace();
-		}
-
-
-	}
+    }
 
 	public void close() {
 
@@ -79,7 +62,65 @@ public class Stream {
 	 * @param out
 	 */
 
-	public void setOutput(BufferedOutputStream out) {
+	public void setOutput(DataOutputStream out) {
 		this.out = out;
 	}
-}
+	
+	/**
+     * Utilisation du singleton, afin d'avoir une seule instance d'un Streamer
+     *
+     * @return l'instance du Streamer
+     */
+    public static Stream getInstance() {
+        if (streamer == null) streamer = new Stream();
+        return streamer;
+    }
+
+    /**
+     * Cette méthode informe le serveur que le client est un streamer
+     *
+     * @throws IOException
+     */
+    public void sendType() throws IOException {
+        out.writeBoolean(true);
+    }
+
+    /**
+     * Cette méthode permet au streamer de choisir son nom
+     *
+     * @param streamerName - une String étant le nom du choisi
+     */
+    public void setStreamerName(String streamerName) {
+        this.streamerName = streamerName;
+    }
+
+    /**
+     * Cette méthode permet d'accéder au nom du streamer
+     *
+     * @return - une String étant le nom du streamer
+     * @return - une String étant le nom du streame
+     */
+    public String getStreamerName() {
+        return streamerName;
+    }
+
+    /**
+     * Cette méthode permet d'envoyer le nom du streamer au serveur
+     *
+     * @throws IOException
+     */
+    public void sendStreamerName() throws IOException {
+        out.writeUTF(streamerName);
+    }
+
+
+    /**
+     * Cette méthode permet d'envoyer les images capturé par la webcam au serveur
+     *
+     * @throws IOException
+     */
+    public void sendImages() throws IOException {
+    	
+    }
+ }
+

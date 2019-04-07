@@ -1,17 +1,16 @@
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.PriorityQueue;
-// Pas certain si fait une différence d'utilisé un BlockingQueue ou non.
-import java.util.concurrent.PriorityBlockingQueue;
+import java.io.InputStream;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class VideoReader extends JFrame {
 
@@ -20,8 +19,7 @@ public class VideoReader extends JFrame {
     private int width;
     private int height;
     private JPanel contentPane;
-    private PriorityQueue<SerializableImage> queue;
-    private ImageConverter converter;
+    private ArrayBlockingQueue<BufferedImage> queue;
     private boolean paused;
 
     /**
@@ -31,10 +29,9 @@ public class VideoReader extends JFrame {
      */
 
 
-    public VideoReader(BufferedInputStream in) throws IOException {
+    public VideoReader(DataInputStream in, DataOutputStream out) throws IOException {
 
-        this.queue = new PriorityQueue<SerializableImage>(CAPACITY);
-        this.converter = new ImageConverter();
+        this.queue = new ArrayBlockingQueue<BufferedImage>(CAPACITY);
         this.width = 1280;
         this.height = 720;
 
@@ -50,30 +47,37 @@ public class VideoReader extends JFrame {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try(ObjectInputStream ois = new ObjectInputStream(in)) {
-                    SerializableImage img;
+                try {
+                    //SerializableImage img;
 
                     while (true) {
-                        if ((img = (SerializableImage) ois.readObject()) != null) {
+                    	
+                        byte[] buffer = new byte[in.readInt()];
+                        in.readFully(buffer);
 
-                            // Si la file est pleine, on jete la prochaine image qui devait être lue
-                            // pour ne pas créer de délais
-                            if (queue.size() >= CAPACITY) {
-                                queue.poll();
-                            }
+                        while (in.read() != 'y') ;
+                        out.write('y');
+                        out.flush();
 
-                            // queue.put(img);
-                            queue.add(img);
-
+                        InputStream inputStream = new ByteArrayInputStream(buffer);
+                       
+                        BufferedImage image = ImageIO.read(inputStream);
+                        // Si la file est pleine, on jete la prochaine image qui devait être lue
+                        // pour ne pas créer de délais
+                        if (queue.size() >= CAPACITY) {
+                            queue.poll();
                         }
+
+                        // queue.put(img);
+                        queue.add(image);
+                        inputStream.close();
+                    	
 
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                } 
             }
         }).start();
 
@@ -81,15 +85,15 @@ public class VideoReader extends JFrame {
 
     }
 
-    public void paint(Graphics g){
+    public VideoReader() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public void paint(Graphics g){
 
         if(queue.peek() != null) {
 
-            BufferedImage img = converter.getImage(queue.poll());
-            AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-            tx.translate(-img.getWidth(null), 0);
-            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-            img = op.filter(img, null);
+            BufferedImage img = queue.poll();
             g = contentPane.getGraphics();
             g.drawImage(img, 0, 0, this);
 

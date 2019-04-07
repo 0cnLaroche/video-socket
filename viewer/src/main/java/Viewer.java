@@ -1,10 +1,5 @@
-package client;
 
-import javax.imageio.ImageIO;
-import javax.management.remote.JMXConnectorFactory;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -16,8 +11,6 @@ public class Viewer {
     private InputStream in;
     private OutputStream out;
 
-    private BufferedImage image;
-
     /**
      * Utilisation du singleton, afin d'avoir une seule instance du Viewer
      *
@@ -26,6 +19,13 @@ public class Viewer {
     public static Viewer getInstance() {
         if (viewer == null) viewer = new Viewer();
         return viewer;
+    }
+    
+    public DataInputStream getIn() {
+    	return this.dataIn;
+    }
+    public DataOutputStream getOut() {
+    	return this.dataOut;
     }
 
     /**
@@ -79,26 +79,5 @@ public class Viewer {
         dataOut.writeUTF(streamerName);
     }
 
-    /**
-     * Cette méthode permet de recevoir les images du streamers par le serveur
-     *
-     * @return - les images reçues du serveur
-     * @throws IOException
-     */
-    public BufferedImage receiveImages() throws IOException {
-        while (true) {
 
-            byte[] buffer = new byte[dataIn.readInt()];
-            dataIn.readFully(buffer);
-
-            while (in.read() != 'y') ;
-            out.write('y');
-            out.flush();
-
-            InputStream inputStream = new ByteArrayInputStream(buffer);
-            image = ImageIO.read(inputStream);
-            inputStream.close();
-
-        }
-    }
 }
