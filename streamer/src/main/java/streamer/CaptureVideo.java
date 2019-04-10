@@ -3,6 +3,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -34,6 +35,28 @@ public class CaptureVideo extends Thread {
 		this.converter = new ImageConverter();
 	}
 	
+	public CaptureVideo() {
+		vc = new VideoCapture();
+		this.converter = new ImageConverter();
+		
+	}
+	
+	public DataOutputStream getOut() {
+		return out;
+	}
+
+	public void setOut(DataOutputStream out) {
+		this.out = out;
+	}
+
+	public DataInputStream getIn() {
+		return in;
+	}
+
+	public void setIn(DataInputStream in) {
+		this.in = in;
+	}
+
 	public void mirror() {
 
 	}
@@ -110,12 +133,14 @@ public class CaptureVideo extends Thread {
 		            buffer.close();
 		            	
 
-		            while (in.read() != 'y')
+		            //while (in.read() != 'y');
 
 					Thread.sleep(1000 / FPS);
 
 				}
 
+			} catch (SocketException e) {
+				System.out.println("La connection avec le serveur a été perdu");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
